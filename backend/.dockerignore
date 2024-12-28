@@ -1,6 +1,6 @@
 venv
-.gitkeep
-db.sqlite3
-.idea
+.env.
 .vscode
-.env
+tests
+pytest.ini
+setup.cfg

@@ -1,45 +1,63 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.core.validators import RegexValidator
+from django.db.models import (
+    CASCADE, CharField, CheckConstraint, EmailField, F, ForeignKey, Model, Q,
+    UniqueConstraint
+)
 
-MAX_FIELD_LENGTH = 150
 
-
-class FoodgramUser(AbstractUser):
-    """Переопределение стандартного пользователя."""
-
-    first_name = models.CharField('Имя', max_length=MAX_FIELD_LENGTH)
-    last_name = models.CharField('Фамилия', max_length=MAX_FIELD_LENGTH)
-
-    email = models.EmailField('Почта', unique=True)
+class CustomUser(AbstractUser):
+    email = EmailField(
+        verbose_name='Электронная почта', max_length=254, unique=True)
+    username = CharField(
+        verbose_name='Логин',
+        max_length=150,
+        unique=True,
+        validators=[RegexValidator(
+            regex=r'^[\w.@+-]+\Z',
+            message='Введите корректный username',
+            code='invalid_username'
+        )])
+    first_name = CharField(verbose_name='Имя', max_length=150)
+    last_name = CharField(verbose_name='Фамилия', max_length=150)
+    password = CharField(verbose_name='Пароль', max_length=150)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('username',)
-
-
-class Follow(models.Model):
-    """Модель фоловеров."""
-
-    user = models.ForeignKey(
-        FoodgramUser, on_delete=models.CASCADE, related_name='subscriber',
-        verbose_name='Подписчик')
-    following = models.ForeignKey(
-        FoodgramUser, on_delete=models.CASCADE, related_name='following',
-        verbose_name='Подписан на')
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'username']
 
     class Meta:
-        verbose_name = 'подписчик'
-        verbose_name_plural = 'Подписчики'
-        constraints = [
-            models.UniqueConstraint(
-                fields=('user', 'following'),
-                name='unique_user_following'
-            ),
-            models.CheckConstraint(
-                check=~models.Q(user=models.F('following')),
-                name='can_not_follow_youself'
-            )
-        ]
-        default_related_name = 'follows'
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
-    def __str__(self):
-        return self.user.username
+    def __str__(self) -> str:
+        return self.email
+
+
+class Subscribe(Model):
+    User = get_user_model()
+    user = ForeignKey(
+        User,
+        related_name='followers',
+        verbose_name='Подписчик',
+        on_delete=CASCADE
+    )
+    author = ForeignKey(
+        User,
+        related_name='followings',
+        verbose_name='Автор',
+        on_delete=CASCADE
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'author'], name='unique_follow'),
+            CheckConstraint(
+                check=~Q(user=F('author')), name='not_follow_yourself')
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.user} follows {self.author}'

@@ -1,26 +1,20 @@
-from django.conf import settings
-from django.conf.urls.static import static
 from django.urls import include, path
-from djoser.views import TokenDestroyView
+from djoser.views import TokenCreateView, TokenDestroyView
 from rest_framework.routers import DefaultRouter
 
 from .views import (
-    FoodgramUserViewSet, APIObtainAuthToken, TagViewSet,
-    IngredientViewSet, RecipeViewSet
+    CustomUserViewSet, IngredientViewSet, RecipeViewSet, TagViewSet
 )
 
 router = DefaultRouter()
-router.register('users', FoodgramUserViewSet, basename='users')
-router.register('tags', TagViewSet, basename='tags')
-router.register('ingredients', IngredientViewSet, basename='ingredients')
-router.register('recipes', RecipeViewSet, basename='recipes')
+
+router.register('users', CustomUserViewSet, 'users')
+router.register('tags', TagViewSet, 'tags')
+router.register('ingredients', IngredientViewSet, 'ingredients')
+router.register('recipes', RecipeViewSet, 'recipes')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('auth/token/login/', APIObtainAuthToken.as_view()),
+    path('auth/token/login/', TokenCreateView.as_view()),
     path('auth/token/logout/', TokenDestroyView.as_view()),
+    path('', include(router.urls)),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
