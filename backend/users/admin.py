@@ -1,18 +1,21 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group
+from django.contrib.auth.admin import UserAdmin
 
-from .models import CustomUser, Subscribe
+from .models import Subscribe, User
 
 
-@admin.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'email', 'username', 'first_name', 'last_name')
+@admin.register(User)
+class UserAdmin(UserAdmin):
+    list_display = (
+        'username',
+        'id',
+        'email',
+        'first_name',
+        'last_name',
+    )
     list_filter = ('email', 'first_name')
 
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'author')
-
-
-admin.site.unregister(Group)
+    list_display = ('user', 'author',)

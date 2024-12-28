@@ -130,7 +130,5 @@ dmypy.json
 
 # .idea
 .idea
-.vscode/
-
-media/
-postgres_db.sql
+/infra/foodgramproject.crt
+/infra/foodgramproject.key
