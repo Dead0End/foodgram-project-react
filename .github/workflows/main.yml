@@ -2,7 +2,7 @@ name: Foodgram Workflow
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
       - '**/README.md'
 
@@ -80,7 +80,7 @@ jobs:
 #      - build_and_push_frontend_to_docker_hub
 #    steps:
 #      - name: Executing remote ssh commands to deploy
-#        uses: appleboy/ssh-action@master
+#        uses: appleboy/ssh-action@main
 #        with:
 #          host: ${{ secrets.HOST }}
 #          username: ${{ secrets.USER }}
@@ -114,7 +114,7 @@ jobs:
 #    needs: deploy
 #    steps:
 #      - name: Send message
-#        uses: appleboy/telegram-action@master
+#        uses: appleboy/telegram-action@main
 #        with:
 #          to: ${{ secrets.TELEGRAM_TO }}
 #          token: ${{ secrets.TELEGRAM_TOKEN }}
